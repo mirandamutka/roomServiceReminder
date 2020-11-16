@@ -19,6 +19,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
 
+    lateinit var recyclerView : RecyclerView
     lateinit var addTaskEditText : EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,7 +31,15 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "toDo-items")
             .fallbackToDestructiveMigration().build()
 
-        loadToDoItems()
+        val loadedItems = loadToDoItems()
+
+        launch(Dispatchers.Main) {
+            val itemsList = loadedItems.await()
+
+            for(item in itemsList) {
+                DataManager.items.add(item)
+            }
+        }
 
         addTaskEditText = findViewById(R.id.addTaskEditText)
 
@@ -41,7 +50,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             addToDoItem(Item(0, "${addTaskEditText.text}", false))
         }
 
-        val recyclerView = findViewById<RecyclerView>(R.id.toDoItemRecyclerView)
+        recyclerView = findViewById<RecyclerView>(R.id.toDoItemRecyclerView)
 
         recyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -52,13 +61,14 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     fun addToDoItem(item: Item) {
         launch(Dispatchers.IO) {
             db.itemDao().insert(item)
+            DataManager.items.add(item)
         }
+        recyclerView.adapter?.notifyDataSetChanged()
     }
 
-    fun loadToDoItems() {
+    fun loadToDoItems() : Deferred<List<Item>> =
         async(Dispatchers.IO) {
             db.itemDao().getAll()
-        }
 
     }
 
