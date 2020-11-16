@@ -47,7 +47,10 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 
 
         addButton.setOnClickListener{
-            addToDoItem(Item(0, "${addTaskEditText.text}", false))
+            if(addTaskEditText?.text.toString() != "") {
+                addToDoItem(Item(0, "${addTaskEditText.text}", false))
+            }
+
         }
 
         recyclerView = findViewById<RecyclerView>(R.id.toDoItemRecyclerView)
@@ -69,6 +72,14 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     fun loadToDoItems() : Deferred<List<Item>> =
         async(Dispatchers.IO) {
             db.itemDao().getAll()
+
+    }
+
+    fun deleteToDoItem(item: Item) {
+        launch(Dispatchers.IO) {
+            db.itemDao().delete(item)
+        }
+        recyclerView.adapter?.notifyDataSetChanged()
 
     }
 
