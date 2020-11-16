@@ -5,11 +5,11 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.LinearLayout
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
 class MainActivity : AppCompatActivity(), CoroutineScope {
@@ -30,6 +30,8 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "toDo-items")
             .fallbackToDestructiveMigration().build()
 
+        loadToDoItems()
+
         addTaskEditText = findViewById(R.id.addTaskEditText)
 
         val addButton = findViewById<Button>(R.id.addButton)
@@ -39,7 +41,11 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             addToDoItem(Item(0, "${addTaskEditText.text}", false))
         }
 
+        val recyclerView = findViewById<RecyclerView>(R.id.toDoItemRecyclerView)
 
+        recyclerView.layoutManager = LinearLayoutManager(this)
+
+        recyclerView.adapter = ToDoItemRecyclerAdapter(this, DataManager.items)
 
     }
 
@@ -47,6 +53,13 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         launch(Dispatchers.IO) {
             db.itemDao().insert(item)
         }
+    }
+
+    fun loadToDoItems() {
+        async(Dispatchers.IO) {
+            db.itemDao().getAll()
+        }
+
     }
 
     override fun onDestroy() {
