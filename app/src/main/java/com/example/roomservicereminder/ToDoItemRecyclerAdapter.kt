@@ -36,7 +36,7 @@ class ToDoItemRecyclerAdapter (
         var toDoEntry = list[position]
 
         holder.itemTextView.text = toDoEntry.task
-        holder.checkBox.isChecked = toDoEntry.done
+        //holder.checkBox.isChecked = toDoEntry.done
         holder.clickedItemId = toDoEntry.id
         holder.clickedItemPosition = position
     }
@@ -62,7 +62,7 @@ class ToDoItemRecyclerAdapter (
 
     inner class ViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView) {
         val itemTextView = itemView.findViewById<TextView>(R.id.itemTextView)
-        val checkBox = itemView.findViewById<CheckBox>(R.id.checkBox)
+        //val checkBox = itemView.findViewById<CheckBox>(R.id.checkBox)
         val deleteButton = itemView.findViewById<ImageView>(R.id.deleteButton)
         var clickedItemId = 0
         var clickedItemPosition = 0
