@@ -9,7 +9,7 @@ import androidx.room.Query
 interface ItemDao {
 
     @Insert
-    fun insert(item: Item)
+    fun insert(item: Item) : Long
 
     @Delete
     fun delete(item: Item)

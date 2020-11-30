@@ -50,7 +50,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             if(addTaskEditText?.text.toString() != "") {
                 addToDoItem(Item(0, "${addTaskEditText.text}", false))
             }
-
         }
 
         recyclerView = findViewById<RecyclerView>(R.id.toDoItemRecyclerView)
@@ -63,10 +62,12 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 
     fun addToDoItem(item: Item) {
         launch(Dispatchers.IO) {
-            db.itemDao().insert(item)
-            DataManager.items.add(item)
+            var id = db.itemDao().insert(item).toInt()
+            var itemWithIdFromRoom =  Item(id = id, "${item.task}")
+            DataManager.items.add(itemWithIdFromRoom)
         }
         recyclerView.adapter?.notifyDataSetChanged()
+
     }
 
     fun loadToDoItems() : Deferred<List<Item>> =
@@ -80,7 +81,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             db.itemDao().delete(item)
         }
         recyclerView.adapter?.notifyDataSetChanged()
-
     }
 
     override fun onDestroy() {
